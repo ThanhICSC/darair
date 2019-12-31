@@ -1,0 +1,318 @@
+<odoo>
+    <template id="report_account_payment_details">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context({'lang': lang})"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            div {
+                                padding: 2px;
+                                font-size: 15px;
+                            }
+
+                            .rotate {
+                            position:absolute;/* place the text relateve to
+                            whatever tag is devined as absolute */
+                            left:0px;/* change these dimensions - can use
+                            left or right */
+                            top:50%;/* change these dimensions can use top
+                            or bottom*/
+                            -webkit-transform: rotate(-90deg);
+                            -moz-transform: rotate(-90deg);
+                            -ms-transform: rotate(-90deg);
+                            -o-transform: rotate(-90deg);
+                            float: left;
+                            }
+
+                        </style>
+                        <div class="col-12 row">
+                            <div class="col-2" style="border: 1px solid #000;height:460px;">
+                                <h5 class="rotate"> PAYMENT RECEIPT </h5>
+                            </div>
+                            <div class="col-10" style="margin-left:21px;border: 1px solid #000;height:460px;">
+                                <table width="100%">
+                                    <tr>
+                                        <td style="border: 1px solid #737373;text-align: left;">
+                                            Number
+                                            <span t-field="o.name"/>
+                                        </td>
+                                        <td style="border: 1px solid #737373;text-align: right;background-color: #E5E5E5">
+                                            Date
+                                            <span t-field="o.payment_date"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <table width="100%">
+                                    <tr>
+                                        <td width="15%" style="border: 1px solid #737373;text-align: left;">
+                                            <t t-if="o.payment_type == 'inbound'">
+                                                Received from
+                                            </t>
+                                            <t t-if="o.payment_type == 'outbound'">
+                                                Paid To
+                                            </t>
+                                        </td>
+                                        <td width="68%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                            <span t-field="o.partner_id"/>
+                                        </td>
+                                        <td width="2%" style="border: 1px solid #737373;text-align: center;">
+                                            <span t-field="o.currency_id.symbol"/>
+                                        </td>
+                                        <td width="15%" style="border: 1px solid #737373;background-colpaymentor: #E5E5E5">
+                                            <span t-esc="o.amount"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <table width="100%">
+                                    <tr>
+                                        <td width="15%" style="border: 1px solid #737373;">In words</td>
+                                        <td width="85%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                            <span t-esc="o.get_amount(o.amount)"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <table width="100%">
+                                    <tr>
+                                        <td width="15%" style="border: 1px solid #737373;">For payment of</td>
+                                        <td width="85%" style="border: 1px solid #737373;background-color: #E5E5E5"><span t-field="o.reference"/></td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <t t-set="counter" t-value="0"/>
+                                <t t-foreach="o.invoice_ids" t-as="inv">
+                                <t t-if="counter == 2">
+                                    <p style="padding:0;page-break-after:always;"/>
+                                </t>
+                                <t t-set="counter" t-value="counter+1"/>
+                                <table width="100%" style="border: 1px solid #737373;">
+                                    <tr>
+                                        <td width="30%">
+                                            <table t-if="o.partner_type == 'customer'"
+                                                   class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Total Amount</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="inv.amount_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Amount Paid</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="o._get_invoice_payment_amount(inv)"
+                                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Amount Due</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-field="inv.amount_residual"
+                                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table t-if="o.partner_type == 'supplier'"
+                                                   class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Total Amount</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="inv.amount_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Amount Paid</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="o._get_invoice_payment_amount(inv)"
+                                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Amount Due</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                            <span t-field="inv.amount_residual"
+                                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td width="3%"/>
+                                        <td width="25%">
+                                            <table class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="10%" style="border: 1px solid #737373;">
+                                                        <span t-if="o.journal_type in ['cash']">
+                                                            <input type="checkbox" class="fa fa-check fa-1x"/>
+                                                        </span>
+                                                        <span t-if="o.journal_type not in ['cash']">
+                                                            <input type="checkbox"/>
+                                                        </span>
+                                                    </td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">Cash</td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="10%" style="border: 1px solid #737373;">
+                                                        <span t-if="o.journal_type not in ['cash']">
+                                                            <input type="checkbox" class="fa fa-check fa-1x"/>
+                                                        </span>
+                                                        <span t-if="o.journal_type in ['cash']">
+                                                            <input type="checkbox"/>
+                                                        </span>
+                                                    </td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">Cheque</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td width="3%"/>
+                                        <td width="30%">
+                                            <table class="table table-bordered table table-sm" >
+                                                <t t-if="o.journal_type == 'bank'">
+                                                    <tr>
+                                                        <td width="17%" style="border: 1px solid #737373;background-color: #E5E5E5">Cheque No</td>
+                                                        <td width="15%" style="border: 1px solid #737373;"><span t-field="o.check_no"/></td>
+                                                    </tr>
+                                                </t>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <t t-if="counter == 6">
+                                    <p style="padding:0;page-break-after:always;"/>
+                                </t>
+                            </t>
+                            <t t-set="counter" t-value="0"/>
+                                <t t-if="not o.invoice_ids">
+                                <t t-if="counter == 2">
+                                    <p style="padding:0;page-break-after:always;"/>
+                                </t>
+                                <t t-set="counter" t-value="counter+1"/>
+                                <table width="100%" style="border: 1px solid #737373;">
+                                    <tr>
+                                        <td width="30%">
+                                            <table t-if="o.partner_type == 'customer'"
+                                                   class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Total Amount</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table t-if="o.partner_type == 'supplier'"
+                                                   class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="15%" style="border: 1px solid #737373;">Total Amount</td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                                        <span t-esc="o.amount" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td width="3%"/>
+                                        <td width="25%">
+                                            <table class="table table-bordered table table-sm">
+                                                <tr>
+                                                    <td width="10%" style="border: 1px solid #737373;">
+                                                        <span t-if="o.journal_type in ['cash']">
+                                                            <input type="checkbox" class="fa fa-check fa-1x"/>
+                                                        </span>
+                                                        <span t-if="o.journal_type not in ['cash']">
+                                                            <input type="checkbox"/>
+                                                        </span>
+                                                    </td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">Cash</td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="10%" style="border: 1px solid #737373;">
+                                                        <span t-if="o.journal_type not in ['cash']">
+                                                            <input type="checkbox" class="fa fa-check fa-1x"/>
+                                                        </span>
+                                                        <span t-if="o.journal_type in ['cash']">
+                                                            <input type="checkbox"/>
+                                                        </span>
+                                                    </td>
+                                                    <td width="15%" style="border: 1px solid #737373;background-color: #E5E5E5">Cheque</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td width="3%"/>
+                                        <td width="30%">
+                                            <table class="table table-bordered table table-sm" >
+                                                <t t-if="o.journal_type == 'bank'">
+                                                    <tr>
+                                                        <td width="17%" style="border: 1px solid #737373;background-color: #E5E5E5">Cheque No</td>
+                                                        <td width="15%" style="border: 1px solid #737373;"><span t-field="o.check_no"/></td>
+                                                    </tr>
+                                                </t>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <t t-if="counter == 6">
+                                    <p style="padding:0;page-break-after:always;"/>
+                                </t>
+                            </t>
+                            <br/>
+                                <table width="100%">
+                                    <tr>
+                                        <td width="15%" style="border: 1px solid #737373;">Memo</td>
+                                        <td width="35%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                            <span t-field="o.communication"/>
+                                        </td>
+                                        <td width="25%" align="center" style="border: 1px solid #737373;">
+                                            <t t-if="o.payment_type == 'inbound'">
+                                                Received By
+                                            </t>
+                                            <t t-if="o.payment_type == 'outbound'">
+                                                Paid By
+                                            </t>
+                                        </td>
+                                        <td width="25%" style="border: 1px solid #737373;background-color: #E5E5E5">
+                                            <span t-esc="user.name"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <br/>
+                                <table width="100%">
+                                    <tr t-if="user.company_id.is_remove_sign == False">
+                                        <td width="10%"/>
+                                        <td width="30%"/>
+                                        <td width="20%">
+                                            Authorized Signature
+                                        </td>
+                                        <td width="40%"
+                                            style="border-bottom: 1px solid #000000;">
+                                        </td>
+                                    </tr>
+                                    <tr t-if="user.company_id.is_remove_sign == True">
+                                        <td>
+                                            <p>
+                                                <i>This is a computer
+                                                    generated document and
+                                                    no signature is
+                                                    required.
+                                                </i>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_account_payment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang"/>
+                <t t-call="account_voucher_report.report_account_payment_details" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>
